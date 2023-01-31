@@ -1,48 +1,137 @@
 ---
-title: "Weekly Summary Template"
-author: "Author Name"
+title: "Week 3 Summary"
+author: "Carson"
 title-block-banner: true
 title-block-style: default
 toc: true
-format: html
-# format: pdf
+format: pdf
 ---
 
 ---
 
-## Tuesday, Jan 17
+## Tuesday, Jan 24
 
 ::: {.callout-important}
 ## TIL
 
-Include a _very brief_ summary of what you learnt in this class here. 
-
 Today, I learnt the following concepts in class:
 
-1. Item 1
-1. Item 2
-1. Item 3
+1. Git
+1. Weekly Summary Template
+1. read.csv
+1. dplyr
+1. ggplot2
 :::
 
-Provide more concrete details here. You can also use footenotes[^footnote] if you like
 
 ```{R results='hide'}
 #| output: false
 library(dplyr)
 library(purrr)
+library(ggplot2)
+```
+```{R}
+data_hard_code <- data.frame(
+  Name = c("Denise", "Hamm", "Kronkite"),
+  Age = c(9, 33, 67),
+  Height = c(5.6, 3.5, 9.9)
+)
+data_hard_code
 ```
 
 
-For example: 
-in class we learnt we learnt about the `map` function from the `purrr` package. 
+CSV from memory
+```{R}
+file_location <- "C:\\Users\\carso\\stat380week3csv.txt"
+```
+
+```{R}
+csv_data <- read.csv(file_location)
+csv_data
+```
+
+read_csv from Tidyverse
+
+data.table from R package
+
+**Begin analysis:**
+
+dplyr and ggplot to facilitate Exploratory Data Analysis
 
 
-```{R results='hide', fig.width=7, fig.height=7}
-par(mfrow=c(3, 3), mar=c(3.5, 3.5, 2, 1), mgp=c(2.4, 0.8, 0))
-map(1:9, function(i)rnorm(1000) %>% hist(., main=i, col=i))
+### dplyr
+
+Provides set of verbs for manipulating data
+
+We'll take the Cars(mpg) dataset
+
+```{R}
+head(mpg, 10) %>% knitr::kable()
+```
+
+**What makes a data set clean?**
+
+Eliminating 'NULL' and 'NA' and 'NaN' and 'missing' entries
+
+Unifying data types for var values
+
+Tidy, each row corresponds to one case (every var has its own column, every obs has its own row, every cell has unique value)
+
+
+Select: Selects specified existing columns to present
+
+```{R}
+mpg %>%
+  select(c(manufacturer, model))
+```
+
+Mutate: Creates new columns
+
+```{R}
+mpg%>%
+  mutate(cty * hwy)
+```
+
+Filter = Only presents rows with given
+
+```{R}
+mpg %>%
+  filter(model == 'a4')
+```
+
+Others:
+
+* summary
+
+* mutate
+
+* melt
+
+* reshape
+
+### ggplot2
+
+gg stands for Grammar of Graphics
+
+There is no ggplot1
+
+```{R}
+plt <- ggplot(iris)
 ```
 
 
+Add points
+
+```{R}
+plt + geom_point(
+  aes(x=Petal.Length, y=Sepal.Length, colour=Species)
+) +
+  #Trend line
+geom_smooth(
+  aes(x=Petal.Length, y=Sepal.Length),
+  method = lm
+)
+```
 
 ## Thursday, Jan 19
 
@@ -51,26 +140,127 @@ map(1:9, function(i)rnorm(1000) %>% hist(., main=i, col=i))
 ::: {.callout-important}
 ## TIL
 
-Include a _very brief_ summary of what you learnt in this class here. 
-
 Today, I learnt the following concepts in class:
 
-1. Item 1
-1. Item 2
-1. Item 3
+1. Project Overview/Course Info
+1. ggthemeassist
+1. purrr
 :::
 
-Provide more concrete details here, e.g., 
+### ggThemeAssist
 
-In class we learnt how to use the `map` function to create multiple regression diagnostic plots
-
-```{R results='hide', fig.height=4}
-par(mfcol=c(2, 3), mar=c(3.5, 3.5, 2, 1), mgp=c(2.4, 0.8, 0))
-mtcars %>%
-  split(.$cyl) %>%
-  map(~ lm(mpg ~ wt, data = .x)) %>%
-  map(function(x)plot(x, which=c(1, 2)))
+```{R}
+library(ggThemeAssist)
 ```
 
+```{R}
+plt + geom_point(
+  aes(x=Petal.Length, y=Sepal.Length, colour=Species)
+) +
+  #Trend line
+geom_smooth(
+  aes(x=Petal.Length, y=Sepal.Length),
+  method = lm
+) + theme(panel.grid.major = element_line(colour = "ivory",
+    linetype = "blank"), panel.background = element_rect(linetype = "solid")) +labs(title = "Sepal Length x Petal Length")
+```
 
-[^footnote]: You can include some footnotes here
+### More on data types
+
+1. Char ("This is our last goodbye")
+1. Int (45)
+1. Dbl (89.4)
+1. Booleans ('TRUE', 'FALSE')
+
+Every column in dataframe has same data type
+
+**What are factors?**
+
+Factors are categorical variables
+
+'var' contains the country code for people in North America:
+
+```{R}
+var <- c(
+  'USA',
+  'USA',
+  'CAN',
+  'CAN',
+  'CHI',
+  'JPN',
+  'MEX',
+  'ARG',
+  'SPN'
+)
+var
+```
+To delineate categorical, we must specify:
+
+```{R}
+as.factor(var)
+```
+```{R}
+iris$Species
+```
+We'll do 'class' for the mpg table
+
+```{R}
+as.factor(mpg$class)
+```
+
+'Forcats' is really useful here:
+```{R}
+library(forcats)
+manufacturer <- as.factor(mpg$manufacturer)
+#Minimum mileage as base level
+fct_reorder(manufacturer, mpg$hwy, max)
+```
+### 'purrr'
+
+Provides a set of functional programming tools
+
+Consider the following procedure:
+
+1. Filter 'iris' by species
+1. Compute the 'Sepal.Area' as 'Sepal.Length' $\times$ 'Sepal.Width'
+1. Find avg of 'Sepal.Area' for every flower in species
+
+dplyr method:
+```{R}
+iris %>%
+  mutate(Area = Sepal.Length * Sepal.Length) %>%
+  group_by(Species)%>%
+  summarize(mean(Area))
+```
+**Consider the task:**
+1. Take number 'i' from $1 \dots 10$
+1. Create matrix with random entries of dimension 'i' x 'i'
+1. Compute average of elements in matrix
+1. Print
+
+```{R}
+results <- c()
+for (i in 1:10){
+  M <- matrix(
+    runif(i * i), nrow=i
+  )
+  results[i] <- mean(M)
+}
+results
+```
+$$i \rightarrow M_{i \times i} \rightarrow mean(M)$$
+
+```{R}
+library(purrr)
+map(
+  1:10,
+  function(i){
+    mean(
+      matrix(
+        c(1:i*i), nrow=i
+      )
+    )
+  }
+)
+```
+
